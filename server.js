@@ -1,6 +1,7 @@
 const express=require('express');
 const app=express();
 const db= require('./db');
+require('dotenv').config();
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -18,8 +19,8 @@ app.get('/idli',(req,res)=>{
     res.send("may i serve you idli sir..");
 });
 
+const PORT = process.env.PORT || 3000;
 
-
-app.listen(3000,()=>{
+app.listen(PORT,()=>{
     console.log("app is listening to port 3000")
 });
