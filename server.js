@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 const Person= require('./models/Person');
+const Menu = require('./models/Menu');
 
 app.get('/',(req,res)=>{
     res.send("Menu is coming");
@@ -39,11 +40,29 @@ app.get('/person',async(req,res)=>{
         res.status(500).json({err: 'Internal server error'});
     }
 });
+app.post('/menu',async(req,res)=>{
+    try{
+        const data = req.body;
+        const newMenu= new Menu(data);
+        const response= await newMenu.save();
+        console.log("data saved");
+        res.status(200).json(response);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({err:'Internal server error'});
+    }
+});
+app.get('/menu',async(req,res)=>{
+    try{
+        const data= await Menu.find();
+        console.log("data fetched");
+        res.status(200).json(data);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({err: 'Internal server error'});
+    }
+});
 
 app.listen(3000,()=>{
     console.log("app is listening to port 3000")
 });
-//comment adding.... wt..
-
-//wt for adding modules and routes in the next version
-//I think it will be added by today. Ha ha ...
