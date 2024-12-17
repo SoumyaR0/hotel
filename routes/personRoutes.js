@@ -1,15 +1,27 @@
 const express= require('express');
 const router = express.Router();
 const Person = require('./../models/Person');
+const {jwtAuthMiddleware, generateToken} = require('./../jwt');
+const { TopologyDescription } = require('mongodb');
 
-router.post('/',async(req,res)=>{
+router.post('/signup',async(req,res)=>{
     try{
 
         const data= req.body;
         const newPerson=new Person(data);
         const result = await newPerson.save();
         console.log("Data saved");
-        res.status(200).json(result)
+
+        const payload = {
+            id: result.id,
+            username: result.username
+        }
+        console.log(JSON.stringify(payload));
+        const token = generateToken(payload);
+        console.log('Token is : ', token);
+
+
+        res.status(200).json({result: result,token: token});
     }
     catch(err){
         console.log(err);
@@ -17,7 +29,44 @@ router.post('/',async(req,res)=>{
     }
 
 });
-router.get('/',async(req,res)=>{
+router.post('/login', async(req,res)=>{
+    try{
+        const {username,password}=req.body;
+        const user= await Person.findOne({username:username});
+        
+        if(!user || !(await user.comparePassword(password))){
+            return res.status(401).json({error:'Invalid username or password'});
+
+        }
+        const payload = {
+            id: user.id,
+            username: user.username
+        }
+        const token = generateToken(payload);
+        res.json(token);
+
+    }catch(err){
+        console.error(err);
+        res.status(500).json({error:'Internal Server Error'});
+    }
+});
+router.get('/profile',jwtAuthMiddleware,async(req,res)=>{
+    try{
+        const userData = req.user;
+        console.log("User data:",userData);
+
+        const userId = userData.id;
+        const user = await Person.findById(userId);
+
+        res.status(200).json({user});
+
+    }catch(err){
+        console.error(err);
+        res.status(500).json({error:'Internal server error'});
+    }
+});
+
+router.get('/',jwtAuthMiddleware,async(req,res)=>{
     try{
         const data= await Person.find();
         console.log("data fetched");

@@ -26,7 +26,7 @@ app.get('/idli',(req,res)=>{
 });
 
 const personRoute=require('./routes/personRoutes');
-app.use('/person',localAuth,personRoute);
+app.use('/person',personRoute);
 const menuRoute= require('./routes/menuRoutes');
 app.use('/menu',menuRoute);
 
