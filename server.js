@@ -2,6 +2,7 @@ const express=require('express');
 const app=express();
 const db= require('./db');
 require('dotenv').config();
+const passport = require('./auth');
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -15,6 +16,8 @@ const logRequest = (req,res,next)=>{
 
 
 app.use(logRequest);
+app.use(passport.initialize());
+const localAuth=passport.authenticate('local',{session:false});
 app.get('/',(req,res)=>{
     res.send("Menu is coming");
 });
@@ -23,7 +26,7 @@ app.get('/idli',(req,res)=>{
 });
 
 const personRoute=require('./routes/personRoutes');
-app.use('/person',personRoute);
+app.use('/person',localAuth,personRoute);
 const menuRoute= require('./routes/menuRoutes');
 app.use('/menu',menuRoute);
 
