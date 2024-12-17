@@ -5,13 +5,16 @@ require('dotenv').config();
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
+const PORT = process.env.PORT || 3000;
 
-const personRoute=require('./routes/personRoutes');
-app.use('/person',personRoute);
-const menuRoute= require('./routes/menuRoutes');
-app.use('/menu',menuRoute);
+//Middleware function
+const logRequest = (req,res,next)=>{
+    console.log(`[${new Date().toLocaleString()}] Request Made to : ${req.originalUrl}`);
+    next();
+}
 
 
+app.use(logRequest);
 app.get('/',(req,res)=>{
     res.send("Menu is coming");
 });
@@ -19,7 +22,10 @@ app.get('/idli',(req,res)=>{
     res.send("may i serve you idli sir..");
 });
 
-const PORT = process.env.PORT || 3000;
+const personRoute=require('./routes/personRoutes');
+app.use('/person',personRoute);
+const menuRoute= require('./routes/menuRoutes');
+app.use('/menu',menuRoute);
 
 app.listen(PORT,()=>{
     console.log("app is listening to port 3000")
